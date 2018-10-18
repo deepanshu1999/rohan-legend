@@ -12,7 +12,9 @@
     <string name="verified">Verification successful</string>
     <string name="failed">Verification failed</string>
     <string name="entercode">Please enter the code you received</string>
-
+    <string name="title_home">update in res</string>
+    <string name="title_dashboard">update res</string>
+    <string name="title_notifications">notif update res</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

@@ -21,7 +21,9 @@
         <activity
             android:name=".Main2Activity"
             android:label="@string/title_activity_main2" />
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".judgement_activity_1" />
+        <activity android:name=".activity_full_judgement"></activity>
     </application>
 
 </manifest>
