@@ -2,6 +2,7 @@ package com.example.hp.adjonline;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +53,7 @@ public class fragment1 extends Fragment {
 
     // TODO: Rename and change types of parameters
     public TextView partnumber;
+    String res;
     public TextView date;
     private String mParam1;
     private String mParam2;
@@ -58,7 +61,8 @@ public class fragment1 extends Fragment {
     final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
     JSONArray myjsonarray;
     public int A = 0;
-    JSONObject myjsonobject;
+    JSONObject mjsonobject;
+    JSONArray mjsonarr;
 
     //private OnFragmentInteractionListener mListener;
 
@@ -178,8 +182,11 @@ public class fragment1 extends Fragment {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             try {
+                res=result;
                 JSONArray jsonArray= new JSONArray(result);
+                mjsonarr=new JSONArray(result);
                 myjsonarray=jsonArray;
+                //result.isEmpty();
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -202,9 +209,11 @@ public class fragment1 extends Fragment {
                 }
 
                 // Setup and Handover data to recyclerview
+
                 Adapter  mAdapter = new Adapter(getContext(), data);
                 recyclerView.setAdapter(mAdapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
 
             } catch (JSONException e) {
                 Toast.makeText( getContext(), e.toString(), Toast.LENGTH_LONG).show();
@@ -221,69 +230,96 @@ public class fragment1 extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_fragment1, container, false);
 
         recyclerView=rootView.findViewById(R.id.recycler);
+        recyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(getContext(), recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent intentBundle = new Intent(getContext(), judgement_activity_1.class);
+                        try {
+                             mjsonobject= mjsonarr.getJSONObject(position);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        intentBundle.putExtra("jsonobj",mjsonobject.toString());
+                        //intentBundle.putStringArrayListExtra("dimension2", ((ArrayList) dimension2.get(position))); // Very Very Important To Understand //
+                        startActivity(intentBundle);
+                        Toast.makeText(getContext(),"hi",Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onLongItemClick(View view, int position) {
+                        // do whatever
+
+                        //  Toast.makeText(getContext(), dimension2.get(position).toString(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+        );
         partnumber=rootView.findViewById(R.id.partnumber);
         date=rootView.findViewById(R.id.date);
 
         new Setuprecyclerview().execute();
 
 
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
-
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                int currentFirstVisible = linearLayoutManager.findFirstVisibleItemPosition();
-
-                try {
-                   myjsonobject = myjsonarray.getJSONObject(currentFirstVisible + A);
-
-                    String partnO = new String();
-                    String partdate = new String();
-                    int partnoInt = 0;
-//                    dimension1_3 = new ArrayList<>();
-
-
-                    if (myjsonobject.has("partNo")) {
-                        partnO = myjsonobject.getString("partNo");
-
-
-                    }
-
-
-                    if (myjsonobject.has("partdate")) {
-                        partdate = myjsonobject.getString("partdate");
-
-
-                    }
-
-                 partnumber.setText("Part Number: " + partnO + ",");
-                    date.setText("Date: " + partdate);
-
-                    partnumber.setTextAppearance(R.style.nimbusromno9lreg);
-                    date.setTextAppearance(R.style.nimbusromno9lreg);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-                // ChangePartNumber(currentFirstVisible);
-
-              /* String StringCurrentFirstVisible = String.valueOf(currentFirstVisible);
-               new  SendPostRequest2().execute(StringCurrentFirstVisible); */
-
-                if (currentFirstVisible > firstVisibleInListview)
-                    Log.i("RecyclerView scrolled: ", "scroll up!");
-                else
-                    Log.i("RecyclerView scrolled: ", "scroll down!");
-
-                firstVisibleInListview = currentFirstVisible;
-
-            }
-
-        });
+//
+//
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//
+//
+//            @RequiresApi(api = Build.VERSION_CODES.M)
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//
+//                int currentFirstVisible = linearLayoutManager.findFirstVisibleItemPosition();
+//
+//                try {
+//                   myjsonobject = myjsonarray.getJSONObject(currentFirstVisible + A);
+//
+//                    String partnO = new String();
+//                    String partdate = new String();
+//                    int partnoInt = 0;
+////                    dimension1_3 = new ArrayList<>();
+//
+//
+//                    if (myjsonobject.has("partNo")) {
+//                        partnO = myjsonobject.getString("partNo");
+//
+//
+//                    }
+//
+//
+//                    if (myjsonobject.has("partdate")) {
+//                        partdate = myjsonobject.getString("partdate");
+//
+//
+//                    }
+//
+//                 partnumber.setText("Part Number: " + partnO + ",");
+//                    date.setText("Date: " + partdate);
+//
+//                    partnumber.setTextAppearance(R.style.nimbusromno9lreg);
+//                    date.setTextAppearance(R.style.nimbusromno9lreg);
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//                // ChangePartNumber(currentFirstVisible);
+//
+//              /* String StringCurrentFirstVisible = String.valueOf(currentFirstVisible);
+//               new  SendPostRequest2().execute(StringCurrentFirstVisible); */
+//
+//                if (currentFirstVisible > firstVisibleInListview)
+//                    Log.i("RecyclerView scrolled: ", "scroll up!");
+//                else
+//                    Log.i("RecyclerView scrolled: ", "scroll down!");
+//
+//                firstVisibleInListview = currentFirstVisible;
+//
+//            }
+//
+//        });
            return rootView;
        // return inflater.inflate(R.layout.fragment_fragment1, container, false);
 
