@@ -40,7 +40,7 @@ public class MobileVerificationActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_mobile_verification);
 
 
-        resend_timer =findViewById(R.id.resend_timer);
+        resend_timer = findViewById(R.id.resend_timer);
         resend_timer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,90 +50,8 @@ public class MobileVerificationActivity extends AppCompatActivity implements
         startTimer();
         enableInputField(true);
         initiateVerification();
-
-
-       /*  char[] generatedOTP = OTP(4);
-
-        Intent intent = getIntent();
-        if (intent != null) {
-            String phoneNumber = intent.getStringExtra(SignupActivity.INTENT_PHONENUMBER);
-            String countryCode = intent.getStringExtra(SignupActivity.INTENT_COUNTRY_CODE);
-            String name = intent.getStringExtra(SignupActivity.INTENT_NAME);
-            TextView phoneText = (TextView) findViewById(R.id.numberText);
-            phoneText.setText("+" + countryCode + phoneNumber);
-            url = "https://control.msg91.com/api/sendotp.php?authkey=219553ATSeO5f925b1a5f4b&message=Hello "+name+", please use the following otp:"+generatedOTP+"&sender=OTPSMS&mobile="+countryCode + phoneNumber+" &otp="+generatedOTP;
-
-        }
-        initiate(url);
-            */
-
-
-
-    }
-    /*
-    private  void initiate(String url){
-
-
-
-
-        StringRequest stringRequest3 = new StringRequest(Request.Method.GET,
-                url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-
-
-                     if (o.has("id")) {
-                            id = o.getString("id");
-                            dimension1_3.add(id);
-                        }
-
-                        if (jsonObject.has("type")) {
-
-                           type = jsonObject.getString("type");
-
-                        }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(VerificationActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-
-        RequestQueue requestQueue = Volley.newRequestQueue(VerificationActivity.this);
-        requestQueue.add(stringRequest3);
-
-
-
     }
 
-    static char[] OTP(int len)
-    {
-
-        // Using numeric values
-        String numbers = "0123456789";
-
-        // Using random method
-        Random rndm_method = new Random();
-
-        char[] otp = new char[len];
-
-        for (int i = 0; i < len; i++)
-        {
-            // Use of charAt() method : to get character value
-            // Use of nextInt() as it is scanning the value as int
-            otp[i] =
-                    numbers.charAt(rndm_method.nextInt(numbers.length()));
-        }
-        return otp;
-    }
-*/
     void createVerification(String phoneNumber, boolean skipPermissionCheck, String countryCode) {
         if (!skipPermissionCheck && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) ==
                 PackageManager.PERMISSION_DENIED) {
@@ -177,7 +95,7 @@ public class MobileVerificationActivity extends AppCompatActivity implements
         if (intent != null) {
             String phoneNumber = intent.getStringExtra(SignupActivity.INTENT_PHONENUMBER);
             String countryCode = intent.getStringExtra(SignupActivity.INTENT_COUNTRY_CODE);
-            TextView phoneText = (TextView) findViewById(R.id.numberText);
+            TextView phoneText =findViewById(R.id.numberText);
             phoneText.setText("+" + countryCode + phoneNumber);
             createVerification(phoneNumber, skipPermissionCheck, countryCode);
         }
