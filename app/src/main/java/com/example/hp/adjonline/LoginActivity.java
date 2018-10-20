@@ -2,6 +2,7 @@ package com.example.hp.adjonline;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,15 +28,24 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
+    public static final String EMAIL="Email";
     private static final int REQUEST_SIGNUP = 0;
+    public static final String SharedPreferenceTag="LoginStatus";
+    public static final String SP_Status_TAG="LOGIN";
     EditText emailText, passwordText;
     Button loginButton;
     TextView signupLink;
     private static final String URL_Login = "http://adjonline.com/mojito/detailsapi.php?currentpage=1";
-    public static int count = 0;
-    public static int flag1 = 0;
     public static String id = "";
     public static String email = "";
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences sharedPreferences =getSharedPreferences(LoginActivity.SharedPreferenceTag,MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean(LoginActivity.SP_Status_TAG,false).apply();
+        //Always Set it to false
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -86,25 +96,11 @@ public class LoginActivity extends AppCompatActivity {
 
         loginButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
-
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
         new SendPostRequest().execute();
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
     }
 
     @Override
@@ -201,6 +197,7 @@ public class LoginActivity extends AppCompatActivity {
                         sb.append(line);
                         break;
                     }
+                    Log.e("INPUT",sb.toString());
 
                     in.close();
                     return sb.toString();
@@ -230,26 +227,29 @@ public class LoginActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-
+            Log.d("message",message);
             if (message.equals("Yes")) {
+                Log.d("message","I got yes");
                 progressDialog.dismiss();
-                count = 1;
-                flag1 = 1;
+                SharedPreferences sharedPreferences=getSharedPreferences(LoginActivity.SharedPreferenceTag,MODE_PRIVATE);
+                sharedPreferences.edit().putBoolean(LoginActivity.SP_Status_TAG,true).apply();
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.putExtra(LoginActivity.EMAIL,email);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
 
-            } else if (message.equals("No")) {
-                progressDialog.dismiss();
-                count = 0;
-                flag1 = 0;
+                //Saving User Login Status
 
-                Intent intent2 = new Intent(LoginActivity.this, MainActivity.class);
-                intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent2);
-                finish();
+            } else{
+                Log.d("Message","I got NO");
+                progressDialog.dismiss();
+                loginButton.setEnabled(true);
+                SharedPreferences sharedPreferences=getSharedPreferences(LoginActivity.SharedPreferenceTag,MODE_PRIVATE);
+                sharedPreferences.edit().putBoolean(LoginActivity.SP_Status_TAG,false).apply();
+                Toast.makeText(LoginActivity.this,"Login Failed",Toast.LENGTH_SHORT).show();
+
 
             }
 

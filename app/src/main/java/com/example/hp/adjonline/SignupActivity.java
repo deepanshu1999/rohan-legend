@@ -54,6 +54,7 @@ public class SignupActivity extends AppCompatActivity {
     EditText nameText;
     EditText addressText;
     EditText emailText;
+    CountrySpinner countrySpinner;
     EditText mobileText;
     EditText passwordText;
     EditText ouruser;
@@ -65,6 +66,7 @@ public class SignupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        Log.d("PATH","I am in Signup Ac Successfully");
         nameText=findViewById(R.id.input_name);
         addressText=findViewById(R.id.input_address);
         emailText=findViewById(R.id.input_email);
@@ -74,12 +76,12 @@ public class SignupActivity extends AppCompatActivity {
         reEnterPasswordText=findViewById(R.id.input_reEnterPassword);
         signupButton=findViewById(R.id.btn_signup);
         loginLink=findViewById(R.id.link_login);
-
         progressDialog = new ProgressDialog(SignupActivity.this,R.style.AppTheme_Dark_Dialog);
         mCountryIso = PhoneNumberUtils.getDefaultCountryIso(this);
         final String defaultCountryName = new Locale("", mCountryIso).getDisplayName();
-        final CountrySpinner spinner = (CountrySpinner)findViewById(R.id.spinnerCountry);
+        final CountrySpinner spinner =findViewById(R.id.spinnerCountry);
         spinner.init(defaultCountryName);
+
         spinner.addCountryIsoSelectedListener(new CountrySpinner.CountryIsoSelectedListener() {
             @Override
             public void onCountryIsoSelected(String selectedIso) {
@@ -90,7 +92,9 @@ public class SignupActivity extends AppCompatActivity {
                 }
             }
         });
+
         resetNumberTextWatcher(mCountryIso);
+
         tryAndPrefillPhoneNumber();
 
 
@@ -100,14 +104,6 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 signup();
-                if(!validate()) {
-                    onSignupFailed();
-                    return;
-                }
-                else  {
-                    new SendPostRequest().execute();
-
-                }
 
             }
         });
@@ -204,9 +200,6 @@ public class SignupActivity extends AppCompatActivity {
         // return PhoneNumberUtils.formatNumberToE164(mPhoneNumber.getText().toString(), mCountryIso);
     }
 
-
-
-
     public void signup() {
         Log.d(TAG, "Signup");
 
@@ -227,44 +220,10 @@ public class SignupActivity extends AppCompatActivity {
         String password = passwordText.getText().toString().trim();
         String reEnterPassword = reEnterPasswordText.getText().toString();
         String user = ouruser.getText().toString();
+        SignupActivity.SendPostRequest e=new SignupActivity.SendPostRequest();
+        e.execute();
 
-        // TODO: Implement your own signup logic here.
-       /* mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(getApplicationContext(),"User Registered Successful",Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                }
-                else {
-                    if(task.getException()instanceof FirebaseAuthUserCollisionException){
-                        Toast.makeText(getApplicationContext(),"You are already registered",Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-
-                    }else{
-                        Toast.makeText(getApplicationContext(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        }); */
-
-
-       /* new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000); */
     }
-
 
     public void onSignupSuccess() {
         signupButton.setEnabled(true);
@@ -272,8 +231,94 @@ public class SignupActivity extends AppCompatActivity {
         finish();
     }
 
-    public class SendPostRequest extends AsyncTask<String, Void, String> {
+    public String getPostDataString(JSONObject params) throws Exception {
 
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        Iterator<String> itr = params.keys();
+
+        while(itr.hasNext()){
+
+            String key= itr.next();
+            Object value = params.get(key);
+
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(key, "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(value.toString(), "UTF-8"));
+
+        }
+        return result.toString();
+    }
+
+    public void onSignupFailed() {
+        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_SHORT).show();
+        signupButton.setEnabled(true);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
+    public boolean validate() {
+        boolean valid = true;
+
+        String name = nameText.getText().toString();
+        String address = addressText.getText().toString();
+        String email = emailText.getText().toString();
+        String mobile = mobileText.getText().toString();
+        String password = passwordText.getText().toString();
+        String reEnterPassword = reEnterPasswordText.getText().toString();
+
+        if (name.isEmpty() || name.length() < 3) {
+            nameText.setError("at least 3 characters");
+            valid = false;
+        } else {
+            nameText.setError(null);
+        }
+
+        if (address.isEmpty()) {
+            addressText.setError("Enter Valid Address");
+            valid = false;
+        } else {
+            addressText.setError(null);
+        }
+
+
+        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailText.setError("enter a valid email address");
+            valid = false;
+        } else {
+            emailText.setError(null);
+        }
+
+        if (mobile.isEmpty() || mobile.length()!=10) {
+            mobileText.setError("Enter Valid Mobile Number");
+            valid = false;
+        } else {
+            mobileText.setError(null);
+        }
+
+        if (password.isEmpty() || password.length() < 6 ) {
+            passwordText.setError("password length should be greater than or equal to 6 ");
+            valid = false;
+        } else {
+            passwordText.setError(null);
+        }
+
+        if (reEnterPassword.isEmpty() || reEnterPassword.length() < 6 || !(reEnterPassword.equals(password))) {
+            reEnterPasswordText.setError("Password Do not match");
+            valid = false;
+        } else {
+            reEnterPasswordText.setError(null);
+        }
+
+        return valid;
+    }
+
+    public class SendPostRequest extends AsyncTask<String, Void, String> {
         protected void onPreExecute(){
 
             progressDialog.setIndeterminate(true);
@@ -380,94 +425,6 @@ public class SignupActivity extends AppCompatActivity {
         }
 
 
-    }
-
-    public String getPostDataString(JSONObject params) throws Exception {
-
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-
-        Iterator<String> itr = params.keys();
-
-        while(itr.hasNext()){
-
-            String key= itr.next();
-            Object value = params.get(key);
-
-            if (first)
-                first = false;
-            else
-                result.append("&");
-
-            result.append(URLEncoder.encode(key, "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(value.toString(), "UTF-8"));
-
-        }
-        return result.toString();
-    }
-
-    public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_SHORT).show();
-
-        signupButton.setEnabled(true);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
-    public boolean validate() {
-        boolean valid = true;
-
-        String name = nameText.getText().toString();
-        String address = addressText.getText().toString();
-        String email = emailText.getText().toString();
-        String mobile = mobileText.getText().toString();
-        String password = passwordText.getText().toString();
-        String reEnterPassword = reEnterPasswordText.getText().toString();
-
-        if (name.isEmpty() || name.length() < 3) {
-            nameText.setError("at least 3 characters");
-            valid = false;
-        } else {
-            nameText.setError(null);
-        }
-
-        if (address.isEmpty()) {
-            addressText.setError("Enter Valid Address");
-            valid = false;
-        } else {
-            addressText.setError(null);
-        }
-
-
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailText.setError("enter a valid email address");
-            valid = false;
-        } else {
-            emailText.setError(null);
-        }
-
-        if (mobile.isEmpty() || mobile.length()!=10) {
-            mobileText.setError("Enter Valid Mobile Number");
-            valid = false;
-        } else {
-            mobileText.setError(null);
-        }
-
-        if (password.isEmpty() || password.length() < 6 ) {
-            passwordText.setError("password length should be greater than or equal to 6 ");
-            valid = false;
-        } else {
-            passwordText.setError(null);
-        }
-
-        if (reEnterPassword.isEmpty() || reEnterPassword.length() < 6 || !(reEnterPassword.equals(password))) {
-            reEnterPasswordText.setError("Password Do not match");
-            valid = false;
-        } else {
-            reEnterPasswordText.setError(null);
-        }
-
-        return valid;
     }
 }
 

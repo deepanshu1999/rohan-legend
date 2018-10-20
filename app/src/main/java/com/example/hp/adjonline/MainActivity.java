@@ -1,5 +1,7 @@
 package com.example.hp.adjonline;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 //        tabLayout.getTabAt(3).setIcon(tabIcons[3]);
 //        //  tabLayout.getTabAt(4).setIcon(tabIcons[4]);
 //    }
+
 
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
